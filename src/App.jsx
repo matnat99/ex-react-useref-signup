@@ -1,18 +1,20 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 
 const letters = "abcdefghijklmnopqrstuvwxyz";
 const numbers = "0123456789";
 const symbols = "!@#$%^&*()-_=+[]{}|;:'\\,.<>?/`~";
 
 export default function App() {
-  const [fullName, setFullName] = useState("Mattia Natale");
   const [userName, setUserName] = useState("matt99");
   const [password, setPassword] = useState("password1!");
-  const [specialization, setSpecialization] = useState("FrontEnd");
-  const [experienceYears, setExperienceYears] = useState("1");
   const [description, setDescription] = useState(
     "Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit tenetur molestiae repellendus voluptas, distinctio eaque saepe possimus nihil, iusto, recusandae quibusdam pariatur dolorem voluptatum maiores qui quae accusantium deserunt nemo."
   );
+  const fullNameRef = useRef();
+  const specializationRef = useRef();
+  const experienceYearsRef = useRef();
+
+  const formRef = useRef();
 
   const isUserNameValid = useMemo(() => {
     const charsValid = userName
@@ -39,6 +41,11 @@ export default function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const fullName = fullNameRef.current.value;
+    const specialization = specializationRef.current.value;
+    const experienceYears = experienceYearsRef.current.value;
+
     if (
       !fullName.trim() ||
       !userName.trim() ||
@@ -64,17 +71,28 @@ export default function App() {
     });
   };
 
+  useEffect(() => {
+    fullNameRef.current.focus();
+  }, []);
+
+  const resetForm = (e) => {
+    e.preventDefault();
+    setUserName("");
+    setPassword("");
+    setDescription("");
+    fullNameRef.current.value = "";
+    specializationRef.current.value = "";
+    experienceYearsRef.current.value = "";
+    fullNameRef.current.focus();
+  };
+
   return (
     <div>
       <h1>Web Developer Signup</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} ref={formRef}>
         <label>
           <p>Nome e Cognome</p>
-          <input
-            type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-          />
+          <input type="text" ref={fullNameRef} />
         </label>
         <label>
           <p>Username</p>
@@ -108,10 +126,8 @@ export default function App() {
         </label>
         <label>
           <p>Specializzazione</p>
-          <select
-            value={specialization}
-            onChange={(e) => setSpecialization(e.target.value)}
-          >
+          <select ref={specializationRef}>
+            <option>Seleziona</option>
             <option value="Full Stack">Full Stack</option>
             <option value="FrontEnd">FrontEnd</option>
             <option value="BackEnd">BackEnd</option>
@@ -119,11 +135,7 @@ export default function App() {
         </label>
         <label>
           <p>Anni di esperienza</p>
-          <input
-            type="number"
-            value={experienceYears}
-            onChange={(e) => setExperienceYears(e.target.value)}
-          />
+          <input type="number" ref={experienceYearsRef} />
         </label>
         <label>
           <p>Descrizione</p>
@@ -142,7 +154,16 @@ export default function App() {
           )}
         </label>
         <button type="submit">Registrati</button>
+        <button onClick={resetForm}>Reset</button>
       </form>
+      <button
+        onClick={() => {
+          formRef.current.scrollIntoView({ behavior: "smooth" });
+        }}
+        className="scroll-top-btn"
+      >
+        ⇑
+      </button>
     </div>
   );
 }
